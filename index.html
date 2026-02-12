@@ -5,7 +5,346 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Phishing Awareness Simulator (Training)</title>
   <meta name="description" content="A safe, fictional phishing-awareness simulator for training.">
-  <link rel="stylesheet" href="./assets/styles.css" />
+  <style>:root{
+  --bg:#0b0f17;
+  --panel:#111827;
+  --panel2:#0f172a;
+  --border:#243041;
+  --text:#e5e7eb;
+  --muted:#9ca3af;
+  --accent:#60a5fa;
+  --good:#34d399;
+  --bad:#fb7185;
+  --warn:#fbbf24;
+  --shadow: 0 10px 30px rgba(0,0,0,.35);
+  --radius: 14px;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+  background: radial-gradient(900px 500px at 20% 10%, rgba(96,165,250,.18), transparent 55%),
+              radial-gradient(700px 450px at 90% 20%, rgba(52,211,153,.12), transparent 60%),
+              var(--bg);
+  color:var(--text);
+}
+
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:14px 18px;
+  border-bottom:1px solid var(--border);
+  background: rgba(15,23,42,.65);
+  backdrop-filter: blur(10px);
+  position:sticky;
+  top:0;
+  z-index:5;
+}
+
+.brand{display:flex; gap:12px; align-items:center}
+.logo{
+  width:38px; height:38px;
+  display:grid; place-items:center;
+  border-radius:12px;
+  background: linear-gradient(135deg, rgba(96,165,250,.22), rgba(52,211,153,.18));
+  border:1px solid rgba(255,255,255,.08);
+  box-shadow: var(--shadow);
+}
+.brand-title{font-weight:800; letter-spacing:.2px}
+.brand-subtitle{font-size:12px; color:var(--muted)}
+
+.topbar-actions{display:flex; gap:10px}
+
+.layout{
+  display:grid;
+  grid-template-columns: 380px 1fr;
+  gap:14px;
+  padding:14px;
+  max-width:1200px;
+  margin:0 auto;
+}
+
+.panel{
+  background: linear-gradient(180deg, rgba(17,24,39,.95), rgba(15,23,42,.95));
+  border:1px solid rgba(255,255,255,.08);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow:hidden;
+  min-height: calc(100vh - 140px);
+}
+
+.panel-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:14px 14px 10px 14px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.panel-header h2{margin:0; font-size:14px; letter-spacing:.3px; text-transform:uppercase; color:var(--muted)}
+
+.pill{
+  font-family: var(--mono);
+  font-size:12px;
+  padding:4px 8px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.15);
+}
+
+.inbox-toolbar{
+  padding:12px 14px;
+  display:flex;
+  gap:10px;
+  align-items:center;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+
+.tabs{
+  display:flex;
+  gap:6px;
+  background: rgba(0,0,0,.15);
+  border:1px solid rgba(255,255,255,.08);
+  padding:4px;
+  border-radius:999px;
+}
+.tab{
+  border:0;
+  color:var(--muted);
+  background: transparent;
+  padding:8px 10px;
+  border-radius:999px;
+  cursor:pointer;
+  font-size:12px;
+}
+.tab.is-active{
+  background: rgba(96,165,250,.18);
+  color: var(--text);
+  border:1px solid rgba(96,165,250,.25);
+}
+
+.search input{
+  width: 160px;
+  max-width: 100%;
+  padding:9px 10px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.18);
+  color: var(--text);
+  outline:none;
+}
+.search input::placeholder{color: rgba(156,163,175,.8)}
+
+.email-list{
+  list-style:none;
+  margin:0;
+  padding:0;
+  overflow:auto;
+  max-height: calc(100vh - 230px);
+}
+.email-item{
+  border-bottom:1px solid rgba(255,255,255,.06);
+  padding:12px 14px;
+  cursor:pointer;
+  display:grid;
+  gap:6px;
+}
+.email-item:hover{background: rgba(255,255,255,.03)}
+.email-item.is-active{background: rgba(96,165,250,.12)}
+.email-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+}
+.sender{font-weight:700; font-size:13px}
+.date{font-family: var(--mono); font-size:11px; color: var(--muted)}
+.subject-line{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  font-size:13px;
+}
+.badge{
+  font-size:11px;
+  padding:2px 8px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.10);
+  color: var(--muted);
+}
+.badge.unreviewed{color: var(--warn); border-color: rgba(251,191,36,.35); background: rgba(251,191,36,.10)}
+.badge.safe{color: var(--good); border-color: rgba(52,211,153,.35); background: rgba(52,211,153,.10)}
+.badge.phish{color: var(--bad); border-color: rgba(251,113,133,.35); background: rgba(251,113,133,.10)}
+.preview{color: var(--muted); font-size:12px; line-height:1.35}
+
+.reader{
+  display:flex;
+  flex-direction:column;
+}
+
+.score{
+  display:flex;
+  gap:14px;
+}
+.score-item{
+  text-align:right;
+}
+.score-label{
+  font-size:11px;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.3px;
+}
+.score-value{
+  font-family: var(--mono);
+  font-size:13px;
+}
+
+.empty{
+  padding:18px;
+}
+.empty-card{
+  border:1px dashed rgba(255,255,255,.14);
+  border-radius: var(--radius);
+  padding:20px;
+  background: rgba(0,0,0,.12);
+}
+.empty-title{font-weight:800; font-size:18px}
+.empty-text{color:var(--muted); margin-top:6px; line-height:1.45}
+
+.email-view{
+  padding:14px 18px 18px 18px;
+  overflow:auto;
+  max-height: calc(100vh - 170px);
+}
+.email-view.is-hidden{display:none}
+
+.email-meta .subject{
+  font-weight:900;
+  font-size:18px;
+  margin-bottom:10px;
+}
+.meta-grid{
+  display:grid;
+  gap:6px;
+  margin-bottom:12px;
+}
+.meta-row{display:grid; grid-template-columns: 80px 1fr; gap:10px}
+.meta-label{color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.3px}
+.meta-value{font-family: var(--mono); font-size:12px}
+
+.warning{
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid rgba(251,191,36,.22);
+  background: rgba(251,191,36,.08);
+  color: rgba(251,191,36,.95);
+  font-size:12px;
+  margin-bottom:14px;
+}
+
+.email-body{
+  background: rgba(0,0,0,.18);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius: var(--radius);
+  padding:14px;
+  line-height:1.55;
+}
+.email-body .fake-link{
+  color: var(--accent);
+  text-decoration: underline;
+  cursor: default;
+}
+.email-body .code{
+  font-family: var(--mono);
+  font-size:12px;
+  background: rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.08);
+  padding:8px 10px;
+  border-radius:12px;
+  overflow:auto;
+}
+
+.signals{
+  margin-top:12px;
+  padding:12px 14px;
+  background: rgba(0,0,0,.10);
+  border:1px solid rgba(255,255,255,.06);
+  border-radius: var(--radius);
+}
+.signals-title{font-weight:800; font-size:13px; margin-bottom:6px}
+.signals-list{margin:0; padding-left:18px; color: var(--muted); font-size:12px; line-height:1.5}
+
+.actions{
+  display:flex;
+  gap:10px;
+  margin-top:12px;
+}
+
+.btn{
+  border:1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.06);
+  color: var(--text);
+  padding:10px 12px;
+  border-radius:12px;
+  cursor:pointer;
+  font-weight:700;
+}
+.btn:hover{background: rgba(255,255,255,.09)}
+.btn-ghost{background: rgba(0,0,0,.12)}
+.btn-safe{
+  border-color: rgba(52,211,153,.35);
+  background: rgba(52,211,153,.10);
+}
+.btn-phish{
+  border-color: rgba(251,113,133,.35);
+  background: rgba(251,113,133,.10);
+}
+
+.result{
+  margin-top:12px;
+  padding:12px 14px;
+  border-radius: var(--radius);
+  border:1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.14);
+}
+.result.is-hidden{display:none}
+.result .title{font-weight:900; margin-bottom:4px}
+.result .text{color: var(--muted); font-size:12px; line-height:1.5}
+
+.footer{
+  max-width:1200px;
+  margin:0 auto;
+  padding:12px 14px 20px 14px;
+  color: var(--muted);
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  font-size:12px;
+}
+.kbd{
+  font-family: var(--mono);
+  padding:2px 6px;
+  border-radius:8px;
+  border:1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.12);
+}
+
+.sr-only{
+  position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+}
+
+@media (max-width: 980px){
+  .layout{grid-template-columns: 1fr; }
+  .panel{min-height:auto}
+  .email-list{max-height: 40vh}
+  .email-view{max-height: unset}
+  .footer{flex-direction:column}
+}</style>
 </head>
 <body>
   <header class="topbar">
