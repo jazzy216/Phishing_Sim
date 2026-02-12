@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Phishing Awareness Simulator (Training)</title>
+  <meta name="description" content="A safe, fictional phishing-awareness simulator for training.">
+  <link rel="stylesheet" href="./assets/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">🛡️</div>
+      <div>
+        <div class="brand-title">Inbox Training</div>
+        <div class="brand-subtitle">Phishing Awareness Simulator (Fictional)</div>
+      </div>
+    </div>
+
+    <div class="topbar-actions">
+      <button id="btnReset" class="btn btn-ghost" type="button" title="Reset progress">Reset</button>
+      <button id="btnShuffle" class="btn btn-ghost" type="button" title="Shuffle emails">Shuffle</button>
+    </div>
+  </header>
+
+  <main class="layout" role="main">
+    <!-- LEFT: Inbox list -->
+    <section class="panel inbox" aria-label="Inbox">
+      <div class="panel-header">
+        <h2>Inbox</h2>
+        <div class="pill" id="pillCount">0</div>
+      </div>
+
+      <div class="inbox-toolbar">
+        <div class="tabs" role="tablist" aria-label="Filter">
+          <button class="tab is-active" role="tab" aria-selected="true" data-filter="all" type="button">All</button>
+          <button class="tab" role="tab" aria-selected="false" data-filter="unreviewed" type="button">Unreviewed</button>
+          <button class="tab" role="tab" aria-selected="false" data-filter="reviewed" type="button">Reviewed</button>
+        </div>
+
+        <label class="search">
+          <span class="sr-only">Search</span>
+          <input id="searchInput" type="search" placeholder="Search sender/subject..." autocomplete="off" />
+        </label>
+      </div>
+
+      <ul id="emailList" class="email-list" aria-label="Email list"></ul>
+    </section>
+
+    <!-- RIGHT: Email reader -->
+    <section class="panel reader" aria-label="Email reader">
+      <div class="panel-header">
+        <h2>Message</h2>
+        <div class="score" aria-live="polite">
+          <div class="score-item">
+            <div class="score-label">Accuracy</div>
+            <div class="score-value" id="accuracyValue">—</div>
+          </div>
+          <div class="score-item">
+            <div class="score-label">Reviewed</div>
+            <div class="score-value" id="reviewedValue">0</div>
+          </div>
+          <div class="score-item">
+            <div class="score-label">Streak</div>
+            <div class="score-value" id="streakValue">0</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="emptyState" class="empty">
+        <div class="empty-card">
+          <div class="empty-title">Select an email</div>
+          <div class="empty-text">
+            Read it, then choose <strong>Mark Safe</strong> or <strong>Report Phishing</strong>.
+            <br/>All examples are fictional training content.
+          </div>
+        </div>
+      </div>
+
+      <article id="emailView" class="email-view is-hidden" aria-label="Selected email">
+        <div class="email-meta">
+          <div class="subject" id="viewSubject">—</div>
+
+          <div class="meta-grid">
+            <div class="meta-row">
+              <div class="meta-label">From</div>
+              <div class="meta-value" id="viewFrom">—</div>
+            </div>
+            <div class="meta-row">
+              <div class="meta-label">To</div>
+              <div class="meta-value" id="viewTo">you@training.local</div>
+            </div>
+            <div class="meta-row">
+              <div class="meta-label">Date</div>
+              <div class="meta-value" id="viewDate">—</div>
+            </div>
+          </div>
+
+          <div class="warning" id="trainingBanner" role="note">
+            Training Mode: Do not enter real credentials. No links here go to real sites.
+          </div>
+        </div>
+
+        <div class="email-body" id="viewBody"></div>
+
+        <div class="signals">
+          <div class="signals-title">What to look for</div>
+          <ul id="viewSignals" class="signals-list"></ul>
+        </div>
+
+        <div class="actions">
+          <button id="btnSafe" class="btn btn-safe" type="button">Mark Safe</button>
+          <button id="btnPhish" class="btn btn-phish" type="button">Report Phishing</button>
+        </div>
+
+        <div id="resultBox" class="result is-hidden" aria-live="polite"></div>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div>
+      Built for security awareness training. No tracking beyond local browser storage.
+    </div>
+    <div class="footer-right">
+      <span class="kbd">Tip:</span> Hover over “links” in real life; verify domains; beware urgency + credential asks.
+    </div>
+  </footer>
+
+  <script src="./assets/emails.js"></script>
+  <script src="./assets/app.js"></script>
+</body>
+</html>
