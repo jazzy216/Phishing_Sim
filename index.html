@@ -1,472 +1,200 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Phishing Awareness Simulator (Training)</title>
-  <meta name="description" content="A safe, fictional phishing-awareness simulator for training.">
-  <style>:root{
-  --bg:#0b0f17;
-  --panel:#111827;
-  --panel2:#0f172a;
-  --border:#243041;
-  --text:#e5e7eb;
-  --muted:#9ca3af;
-  --accent:#60a5fa;
-  --good:#34d399;
-  --bad:#fb7185;
-  --warn:#fbbf24;
-  --shadow: 0 10px 30px rgba(0,0,0,.35);
-  --radius: 14px;
-  --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-}
-
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
-  margin:0;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-  background: radial-gradient(900px 500px at 20% 10%, rgba(96,165,250,.18), transparent 55%),
-              radial-gradient(700px 450px at 90% 20%, rgba(52,211,153,.12), transparent 60%),
-              var(--bg);
-  color:var(--text);
-}
-
-.topbar{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:14px 18px;
-  border-bottom:1px solid var(--border);
-  background: rgba(15,23,42,.65);
-  backdrop-filter: blur(10px);
-  position:sticky;
-  top:0;
-  z-index:5;
-}
-
-.brand{display:flex; gap:12px; align-items:center}
-.logo{
-  width:38px; height:38px;
-  display:grid; place-items:center;
-  border-radius:12px;
-  background: linear-gradient(135deg, rgba(96,165,250,.22), rgba(52,211,153,.18));
-  border:1px solid rgba(255,255,255,.08);
-  box-shadow: var(--shadow);
-}
-.brand-title{font-weight:800; letter-spacing:.2px}
-.brand-subtitle{font-size:12px; color:var(--muted)}
-
-.topbar-actions{display:flex; gap:10px}
-
-.layout{
-  display:grid;
-  grid-template-columns: 380px 1fr;
-  gap:14px;
-  padding:14px;
-  max-width:1200px;
-  margin:0 auto;
-}
-
-.panel{
-  background: linear-gradient(180deg, rgba(17,24,39,.95), rgba(15,23,42,.95));
-  border:1px solid rgba(255,255,255,.08);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  overflow:hidden;
-  min-height: calc(100vh - 140px);
-}
-
-.panel-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:14px 14px 10px 14px;
-  border-bottom:1px solid rgba(255,255,255,.06);
-}
-.panel-header h2{margin:0; font-size:14px; letter-spacing:.3px; text-transform:uppercase; color:var(--muted)}
-
-.pill{
-  font-family: var(--mono);
-  font-size:12px;
-  padding:4px 8px;
-  border-radius:999px;
-  border:1px solid rgba(255,255,255,.10);
-  background: rgba(0,0,0,.15);
-}
-
-.inbox-toolbar{
-  padding:12px 14px;
-  display:flex;
-  gap:10px;
-  align-items:center;
-  border-bottom:1px solid rgba(255,255,255,.06);
-}
-
-.tabs{
-  display:flex;
-  gap:6px;
-  background: rgba(0,0,0,.15);
-  border:1px solid rgba(255,255,255,.08);
-  padding:4px;
-  border-radius:999px;
-}
-.tab{
-  border:0;
-  color:var(--muted);
-  background: transparent;
-  padding:8px 10px;
-  border-radius:999px;
-  cursor:pointer;
-  font-size:12px;
-}
-.tab.is-active{
-  background: rgba(96,165,250,.18);
-  color: var(--text);
-  border:1px solid rgba(96,165,250,.25);
-}
-
-.search input{
-  width: 160px;
-  max-width: 100%;
-  padding:9px 10px;
-  border-radius:10px;
-  border:1px solid rgba(255,255,255,.10);
-  background: rgba(0,0,0,.18);
-  color: var(--text);
-  outline:none;
-}
-.search input::placeholder{color: rgba(156,163,175,.8)}
-
-.email-list{
-  list-style:none;
-  margin:0;
-  padding:0;
-  overflow:auto;
-  max-height: calc(100vh - 230px);
-}
-.email-item{
-  border-bottom:1px solid rgba(255,255,255,.06);
-  padding:12px 14px;
-  cursor:pointer;
-  display:grid;
-  gap:6px;
-}
-.email-item:hover{background: rgba(255,255,255,.03)}
-.email-item.is-active{background: rgba(96,165,250,.12)}
-.email-top{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:10px;
-}
-.sender{font-weight:700; font-size:13px}
-.date{font-family: var(--mono); font-size:11px; color: var(--muted)}
-.subject-line{
-  display:flex;
-  gap:8px;
-  align-items:center;
-  font-size:13px;
-}
-.badge{
-  font-size:11px;
-  padding:2px 8px;
-  border-radius:999px;
-  border:1px solid rgba(255,255,255,.10);
-  color: var(--muted);
-}
-.badge.unreviewed{color: var(--warn); border-color: rgba(251,191,36,.35); background: rgba(251,191,36,.10)}
-.badge.safe{color: var(--good); border-color: rgba(52,211,153,.35); background: rgba(52,211,153,.10)}
-.badge.phish{color: var(--bad); border-color: rgba(251,113,133,.35); background: rgba(251,113,133,.10)}
-.preview{color: var(--muted); font-size:12px; line-height:1.35}
-
-.reader{
-  display:flex;
-  flex-direction:column;
-}
-
-.score{
-  display:flex;
-  gap:14px;
-}
-.score-item{
-  text-align:right;
-}
-.score-label{
-  font-size:11px;
-  color:var(--muted);
-  text-transform:uppercase;
-  letter-spacing:.3px;
-}
-.score-value{
-  font-family: var(--mono);
-  font-size:13px;
-}
-
-.empty{
-  padding:18px;
-}
-.empty-card{
-  border:1px dashed rgba(255,255,255,.14);
-  border-radius: var(--radius);
-  padding:20px;
-  background: rgba(0,0,0,.12);
-}
-.empty-title{font-weight:800; font-size:18px}
-.empty-text{color:var(--muted); margin-top:6px; line-height:1.45}
-
-.email-view{
-  padding:14px 18px 18px 18px;
-  overflow:auto;
-  max-height: calc(100vh - 170px);
-}
-.email-view.is-hidden{display:none}
-
-.email-meta .subject{
-  font-weight:900;
-  font-size:18px;
-  margin-bottom:10px;
-}
-.meta-grid{
-  display:grid;
-  gap:6px;
-  margin-bottom:12px;
-}
-.meta-row{display:grid; grid-template-columns: 80px 1fr; gap:10px}
-.meta-label{color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.3px}
-.meta-value{font-family: var(--mono); font-size:12px}
-
-.warning{
-  padding:10px 12px;
-  border-radius:12px;
-  border:1px solid rgba(251,191,36,.22);
-  background: rgba(251,191,36,.08);
-  color: rgba(251,191,36,.95);
-  font-size:12px;
-  margin-bottom:14px;
-}
-
-.email-body{
-  background: rgba(0,0,0,.18);
-  border:1px solid rgba(255,255,255,.08);
-  border-radius: var(--radius);
-  padding:14px;
-  line-height:1.55;
-}
-.email-body .fake-link{
-  color: var(--accent);
-  text-decoration: underline;
-  cursor: default;
-}
-.email-body .code{
-  font-family: var(--mono);
-  font-size:12px;
-  background: rgba(255,255,255,.06);
-  border:1px solid rgba(255,255,255,.08);
-  padding:8px 10px;
-  border-radius:12px;
-  overflow:auto;
-}
-
-.signals{
-  margin-top:12px;
-  padding:12px 14px;
-  background: rgba(0,0,0,.10);
-  border:1px solid rgba(255,255,255,.06);
-  border-radius: var(--radius);
-}
-.signals-title{font-weight:800; font-size:13px; margin-bottom:6px}
-.signals-list{margin:0; padding-left:18px; color: var(--muted); font-size:12px; line-height:1.5}
-
-.actions{
-  display:flex;
-  gap:10px;
-  margin-top:12px;
-}
-
-.btn{
-  border:1px solid rgba(255,255,255,.10);
-  background: rgba(255,255,255,.06);
-  color: var(--text);
-  padding:10px 12px;
-  border-radius:12px;
-  cursor:pointer;
-  font-weight:700;
-}
-.btn:hover{background: rgba(255,255,255,.09)}
-.btn-ghost{background: rgba(0,0,0,.12)}
-.btn-safe{
-  border-color: rgba(52,211,153,.35);
-  background: rgba(52,211,153,.10);
-}
-.btn-phish{
-  border-color: rgba(251,113,133,.35);
-  background: rgba(251,113,133,.10);
-}
-
-.result{
-  margin-top:12px;
-  padding:12px 14px;
-  border-radius: var(--radius);
-  border:1px solid rgba(255,255,255,.10);
-  background: rgba(0,0,0,.14);
-}
-.result.is-hidden{display:none}
-.result .title{font-weight:900; margin-bottom:4px}
-.result .text{color: var(--muted); font-size:12px; line-height:1.5}
-
-.footer{
-  max-width:1200px;
-  margin:0 auto;
-  padding:12px 14px 20px 14px;
-  color: var(--muted);
-  display:flex;
-  justify-content:space-between;
-  gap:10px;
-  font-size:12px;
-}
-.kbd{
-  font-family: var(--mono);
-  padding:2px 6px;
-  border-radius:8px;
-  border:1px solid rgba(255,255,255,.10);
-  background: rgba(0,0,0,.12);
-}
-
-.sr-only{
-  position:absolute; width:1px; height:1px; padding:0; margin:-1px;
-  overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
-}
-
-@media (max-width: 980px){
-  .layout{grid-template-columns: 1fr; }
-  .panel{min-height:auto}
-  .email-list{max-height: 40vh}
-  .email-view{max-height: unset}
-  .footer{flex-direction:column}
-}</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Security Awareness Training Simulator - Learn to identify phishing emails">
+    <title>Phishing Awareness Training Simulator</title>
+    <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand">
-      <div class="logo" aria-hidden="true">🛡️</div>
-      <div>
-        <div class="brand-title">Inbox Training</div>
-        <div class="brand-subtitle">Phishing Awareness Simulator (Fictional)</div>
-      </div>
+    <!-- Safety Warning Banner -->
+    <div class="safety-banner" role="alert" aria-live="polite">
+        ⚠️ <strong>Training Simulator Only</strong> — Educational Tool for Security Awareness — Do Not Use for Real-World Targeting
     </div>
 
-    <div class="topbar-actions">
-      <button id="btnReset" class="btn btn-ghost" type="button" title="Reset progress">Reset</button>
-      <button id="btnShuffle" class="btn btn-ghost" type="button" title="Shuffle emails">Shuffle</button>
-    </div>
-  </header>
-
-  <main class="layout" role="main">
-    <!-- LEFT: Inbox list -->
-    <section class="panel inbox" aria-label="Inbox">
-      <div class="panel-header">
-        <h2>Inbox</h2>
-        <div class="pill" id="pillCount">0</div>
-      </div>
-
-      <div class="inbox-toolbar">
-        <div class="tabs" role="tablist" aria-label="Filter">
-          <button class="tab is-active" role="tab" aria-selected="true" data-filter="all" type="button">All</button>
-          <button class="tab" role="tab" aria-selected="false" data-filter="unreviewed" type="button">Unreviewed</button>
-          <button class="tab" role="tab" aria-selected="false" data-filter="reviewed" type="button">Reviewed</button>
-        </div>
-
-        <label class="search">
-          <span class="sr-only">Search</span>
-          <input id="searchInput" type="search" placeholder="Search sender/subject..." autocomplete="off" />
-        </label>
-      </div>
-
-      <ul id="emailList" class="email-list" aria-label="Email list"></ul>
-    </section>
-
-    <!-- RIGHT: Email reader -->
-    <section class="panel reader" aria-label="Email reader">
-      <div class="panel-header">
-        <h2>Message</h2>
-        <div class="score" aria-live="polite">
-          <div class="score-item">
-            <div class="score-label">Accuracy</div>
-            <div class="score-value" id="accuracyValue">—</div>
-          </div>
-          <div class="score-item">
-            <div class="score-label">Reviewed</div>
-            <div class="score-value" id="reviewedValue">0</div>
-          </div>
-          <div class="score-item">
-            <div class="score-label">Streak</div>
-            <div class="score-value" id="streakValue">0</div>
-          </div>
-        </div>
-      </div>
-
-      <div id="emptyState" class="empty">
-        <div class="empty-card">
-          <div class="empty-title">Select an email</div>
-          <div class="empty-text">
-            Read it, then choose <strong>Mark Safe</strong> or <strong>Report Phishing</strong>.
-            <br/>All examples are fictional training content.
-          </div>
-        </div>
-      </div>
-
-      <article id="emailView" class="email-view is-hidden" aria-label="Selected email">
-        <div class="email-meta">
-          <div class="subject" id="viewSubject">—</div>
-
-          <div class="meta-grid">
-            <div class="meta-row">
-              <div class="meta-label">From</div>
-              <div class="meta-value" id="viewFrom">—</div>
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Header -->
+        <header class="app-header">
+            <h1>🛡️ Phishing Awareness Training</h1>
+            <div class="header-stats">
+                <div class="stat">
+                    <span class="stat-label">Score:</span>
+                    <span class="stat-value" id="score">0</span>/<span id="total">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Streak:</span>
+                    <span class="stat-value" id="streak">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Accuracy:</span>
+                    <span class="stat-value" id="accuracy">0%</span>
+                </div>
             </div>
-            <div class="meta-row">
-              <div class="meta-label">To</div>
-              <div class="meta-value" id="viewTo">you@training.local</div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="tabs" role="tablist">
+            <button class="tab active" role="tab" aria-selected="true" aria-controls="inbox-panel" id="inbox-tab" data-tab="inbox">
+                📧 Inbox
+            </button>
+            <button class="tab" role="tab" aria-selected="false" aria-controls="learn-panel" id="learn-tab" data-tab="learn">
+                📚 Learn
+            </button>
+            <button class="tab" role="tab" aria-selected="false" aria-controls="results-panel" id="results-tab" data-tab="results">
+                📊 Results
+            </button>
+        </nav>
+
+        <!-- Inbox Panel -->
+        <div class="panel active" role="tabpanel" id="inbox-panel" aria-labelledby="inbox-tab">
+            <div class="inbox-layout">
+                <!-- Email List -->
+                <aside class="email-list" role="navigation" aria-label="Email list">
+                    <div class="email-list-header">
+                        <h2>Messages</h2>
+                        <button class="btn-reset" id="resetBtn" aria-label="Reset training">
+                            🔄 Reset
+                        </button>
+                    </div>
+                    <ul id="emailListContainer" role="list"></ul>
+                </aside>
+
+                <!-- Email Detail -->
+                <main class="email-detail" role="main" aria-label="Email content">
+                    <div id="emailContent" class="email-placeholder">
+                        <div class="placeholder-content">
+                            <span class="placeholder-icon">📬</span>
+                            <p>Select an email from the list to begin training</p>
+                        </div>
+                    </div>
+                </main>
             </div>
-            <div class="meta-row">
-              <div class="meta-label">Date</div>
-              <div class="meta-value" id="viewDate">—</div>
+        </div>
+
+        <!-- Learn Panel -->
+        <div class="panel" role="tabpanel" id="learn-panel" aria-labelledby="learn-tab" hidden>
+            <div class="learn-content">
+                <h2>🎯 How to Spot Phishing Emails</h2>
+                
+                <section class="learn-section">
+                    <h3>Common Red Flags</h3>
+                    <ul class="red-flags-list">
+                        <li>
+                            <strong>Urgent or threatening language</strong>
+                            <p>Creates pressure to act quickly without thinking</p>
+                        </li>
+                        <li>
+                            <strong>Suspicious sender addresses</strong>
+                            <p>Domain doesn't match the claimed organization</p>
+                        </li>
+                        <li>
+                            <strong>Generic greetings</strong>
+                            <p>"Dear Customer" instead of your actual name</p>
+                        </li>
+                        <li>
+                            <strong>Unexpected attachments</strong>
+                            <p>Especially .exe, .zip, or unusual file types</p>
+                        </li>
+                        <li>
+                            <strong>Requests for sensitive information</strong>
+                            <p>Legitimate companies won't ask for passwords via email</p>
+                        </li>
+                        <li>
+                            <strong>Spelling and grammar errors</strong>
+                            <p>Professional organizations proofread their communications</p>
+                        </li>
+                        <li>
+                            <strong>Too good to be true offers</strong>
+                            <p>Prizes, inheritances, or deals that seem unrealistic</p>
+                        </li>
+                        <li>
+                            <strong>Mismatched or suspicious links</strong>
+                            <p>Hover to check if the URL matches the claimed destination</p>
+                        </li>
+                    </ul>
+                </section>
+
+                <section class="learn-section">
+                    <h3>When to Report</h3>
+                    <div class="action-guide">
+                        <div class="action-item report">
+                            <h4>✅ Report as Phishing</h4>
+                            <ul>
+                                <li>Requests for passwords or personal information</li>
+                                <li>Unexpected invoices or payment requests</li>
+                                <li>Suspicious links or attachments</li>
+                                <li>Impersonation of known brands with urgent demands</li>
+                                <li>Threats or extreme urgency</li>
+                            </ul>
+                        </div>
+                        <div class="action-item safe">
+                            <h4>✅ Mark as Safe</h4>
+                            <ul>
+                                <li>Expected communications from verified senders</li>
+                                <li>Professional tone without pressure tactics</li>
+                                <li>Sender domain matches the organization</li>
+                                <li>No requests for sensitive data</li>
+                                <li>Content aligns with your normal interactions</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="learn-section">
+                    <h3>Best Practices</h3>
+                    <ol class="best-practices">
+                        <li>Always verify unexpected requests through official channels</li>
+                        <li>Never click links in suspicious emails</li>
+                        <li>Check the sender's email address carefully</li>
+                        <li>When in doubt, report to your IT security team</li>
+                        <li>Keep your security software updated</li>
+                    </ol>
+                </section>
             </div>
-          </div>
-
-          <div class="warning" id="trainingBanner" role="note">
-            Training Mode: Do not enter real credentials. No links here go to real sites.
-          </div>
         </div>
 
-        <div class="email-body" id="viewBody"></div>
-
-        <div class="signals">
-          <div class="signals-title">What to look for</div>
-          <ul id="viewSignals" class="signals-list"></ul>
+        <!-- Results Panel -->
+        <div class="panel" role="tabpanel" id="results-panel" aria-labelledby="results-tab" hidden>
+            <div class="results-content">
+                <h2>📊 Your Training Results</h2>
+                <div id="resultsContainer"></div>
+            </div>
         </div>
-
-        <div class="actions">
-          <button id="btnSafe" class="btn btn-safe" type="button">Mark Safe</button>
-          <button id="btnPhish" class="btn btn-phish" type="button">Report Phishing</button>
-        </div>
-
-        <div id="resultBox" class="result is-hidden" aria-live="polite"></div>
-      </article>
-    </section>
-  </main>
-
-  <footer class="footer">
-    <div>
-      Built for security awareness training. No tracking beyond local browser storage.
     </div>
-    <div class="footer-right">
-      <span class="kbd">Tip:</span> Hover over “links” in real life; verify domains; beware urgency + credential asks.
-    </div>
-  </footer>
 
-  <script src="./assets/emails.js"></script>
-  <script src="./assets/app.js"></script>
+    <!-- Feedback Modal -->
+    <div id="feedbackModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" hidden>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title"></h3>
+                <button class="modal-close" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="modalNextBtn">Next Email</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="confirm-title" hidden>
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h3 id="confirm-title">Report as Phishing?</h3>
+            </div>
+            <div class="modal-body">
+                <p><strong>Training Action:</strong> This would report the email to your security team for investigation.</p>
+                <p>In a real environment, reporting suspicious emails helps protect your organization.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="confirmCancelBtn">Cancel</button>
+                <button class="btn btn-danger" id="confirmReportBtn">Confirm Report</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/app.js"></script>
 </body>
 </html>
