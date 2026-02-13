@@ -329,7 +329,8 @@ const appState = {
     answeredEmails: new Map(), // id -> {answer: 'phishing'|'safe', correct: boolean}
     score: 0,
     streak: 0,
-    currentTab: 'inbox'
+    currentTab: 'inbox',
+    pendingEmailId: null // Track email for confirmation modal
 };
 
 // DOM Elements
@@ -341,6 +342,11 @@ document.addEventListener('DOMContentLoaded', () => {
     renderEmailList();
     attachEventListeners();
     updateStats();
+    
+    // Auto-select first email on load
+    if (emailDatabase.length > 0 && !appState.currentEmailId) {
+        selectEmail(emailDatabase[0].id);
+    }
 });
 
 // Cache DOM elements
@@ -464,25 +470,34 @@ function selectEmail(emailId) {
         </div>
     `;
     
-    // Attach action buttons
+    // Attach action buttons only if not answered
     if (!answered) {
-        document.getElementById('reportPhishingBtn').addEventListener('click', () => showConfirmModal(emailId));
-        document.getElementById('markSafeBtn').addEventListener('click', () => submitAnswer(emailId, 'safe'));
+        const reportBtn = document.getElementById('reportPhishingBtn');
+        const safeBtn = document.getElementById('markSafeBtn');
+        
+        if (reportBtn) {
+            reportBtn.addEventListener('click', () => showConfirmModal(emailId));
+        }
+        if (safeBtn) {
+            safeBtn.addEventListener('click', () => submitAnswer(emailId, 'safe'));
+        }
     }
 }
 
 // Show confirmation modal for reporting
 function showConfirmModal(emailId) {
+    appState.pendingEmailId = emailId;
     elements.confirmModal.removeAttribute('hidden');
     elements.confirmModal.setAttribute('aria-hidden', 'false');
     
-    elements.confirmReportBtn.onclick = () => {
-        hideConfirmModal();
-        submitAnswer(emailId, 'phishing');
-    };
+    // Focus the confirm button for accessibility
+    setTimeout(() => {
+        elements.confirmReportBtn.focus();
+    }, 100);
 }
 
 function hideConfirmModal() {
+    appState.pendingEmailId = null;
     elements.confirmModal.setAttribute('hidden', '');
     elements.confirmModal.setAttribute('aria-hidden', 'true');
 }
@@ -517,7 +532,6 @@ function submitAnswer(emailId, userAnswer) {
 function showFeedback(email, userAnswer, isCorrect) {
     const resultIcon = isCorrect ? '✅' : '❌';
     const resultText = isCorrect ? 'Correct!' : 'Incorrect';
-    const resultClass = isCorrect ? 'success' : 'danger';
     
     elements.modalTitle.textContent = resultText;
     elements.modalTitle.style.color = isCorrect ? 'var(--success)' : 'var(--danger)';
@@ -538,6 +552,11 @@ function showFeedback(email, userAnswer, isCorrect) {
     
     elements.feedbackModal.removeAttribute('hidden');
     elements.feedbackModal.setAttribute('aria-hidden', 'false');
+    
+    // Focus the next button
+    setTimeout(() => {
+        elements.modalNextBtn.focus();
+    }, 100);
 }
 
 // Hide feedback modal
@@ -689,10 +708,19 @@ function attachEventListeners() {
         tab.addEventListener('click', () => switchTab(tab.dataset.tab));
     });
     
-    // Modal controls
+    // Modal controls - feedback modal
     elements.modalClose.addEventListener('click', hideFeedbackModal);
     elements.modalNextBtn.addEventListener('click', hideFeedbackModal);
+    
+    // Modal controls - confirmation modal
     elements.confirmCancelBtn.addEventListener('click', hideConfirmModal);
+    elements.confirmReportBtn.addEventListener('click', () => {
+        const emailId = appState.pendingEmailId;
+        hideConfirmModal();
+        if (emailId) {
+            submitAnswer(emailId, 'phishing');
+        }
+    });
     
     // Click outside modal to close
     elements.feedbackModal.addEventListener('click', (e) => {
@@ -744,10 +772,3 @@ function navigateEmailList(direction) {
         document.querySelector(`[data-email-id="${emailDatabase[newIndex].id}"]`)?.focus();
     }
 }
-
-// Auto-select first email on load
-window.addEventListener('load', () => {
-    if (emailDatabase.length > 0 && !appState.currentEmailId) {
-        selectEmail(emailDatabase[0].id);
-    }
-});
